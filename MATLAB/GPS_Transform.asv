@@ -176,12 +176,8 @@ alt = 1217; %[ft]
 origin = [T(1,3),T(1,4), alt]; % Origin at Southern end of Row B
 
 
-[xEast,yNorth,zUp] = geodetic2enu(T(:,[1 3]), T(:,[2 4]), alt, origin(1), origin(2), origin(3), wgs84);
-[xCenter,yCenter,zUp] = geodetic2enu(center_line(1:18,[1 3]), center_line(1:18,[2 4]), alt, origin(1), origin(2), origin(3), wgs84);
+[xEast,yNorth,zUp] = geodetic2enu(T(:,1), T(:,2), origin(1), origin(2), origin(3), wgs84);
 
-plot(xEast,yNorth)
-hold on;
-plot(xCenter,yCenter)
     
 
 %{

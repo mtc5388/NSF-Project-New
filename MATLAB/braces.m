@@ -31,7 +31,7 @@ lon1 = ( lonI_s + lonII_s ) / 2;
 lat2 = ( latI_n + latII_n ) / 2;  % second waypoint at north end
 lon2 = ( lonI_n + lonII_n ) / 2;
 
-% path - x East, y North
+% path - x East, y North (delta lat and lon, find path length)
 del_lat = lat2 - lat1;
 del_lon = lon2 - lon1;
 
