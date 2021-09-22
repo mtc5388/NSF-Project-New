@@ -116,7 +116,7 @@ O.lon_S = -77.9530693;
 
 %% Row Center Line
 
-center_line = zeros(19,4);
+center_line = zeros(18,4);
 % constants
 d2r = pi / 180.0;
 % 1 deg lat = 364813 feet, 1 deg lon = cos(lat)*d2f_lat, MATLAB spherical Earth model
@@ -154,7 +154,7 @@ for i = 1:height(T)-1
     dx1 = d1 * cos( theta );
     dy1 = d1 * sin( theta );
 
-    d2 = distance + offset;   % units [ft]
+    d2 = offset;   % units [ft]
     dx2 = d2 * cos( theta );
     dy2 = d2 * sin( theta );
 
@@ -179,9 +179,18 @@ origin = [T(1,3),T(1,4), alt]; % Origin at Southern end of Row B
 [xEast,yNorth,zUp] = geodetic2enu(T(:,[1 3]), T(:,[2 4]), alt, origin(1), origin(2), origin(3), wgs84);
 [xCenter,yCenter,zUp] = geodetic2enu(center_line(1:18,[1 3]), center_line(1:18,[2 4]), alt, origin(1), origin(2), origin(3), wgs84);
 
+% Creates points between each row to draw the center path lines when
+% plotting
+xCenterPath = [xCenter(:,1) xCenter(:,2)];
+yCenterPath = [yCenter(:,1) yCenter(:,2)];
+
 plot(xEast,yNorth)
 hold on;
 plot(xCenter,yCenter)
+hold on;
+plot(xCenterPath',yCenterPath');
+
+
     
 
 %{
