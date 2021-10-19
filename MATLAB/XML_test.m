@@ -49,5 +49,3 @@ xmlwrite(temp_node)
 
 %% Write XML Doc to File
 xmlwrite('temp_values.xml',temp_node);
-
-% CREATE FOR LOOP TO POPULATE TEMP VALUES

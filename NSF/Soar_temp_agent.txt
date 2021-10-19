@@ -1,0 +1,48 @@
+#Input link data tree structure
+(S1 ^io I1)
+(I1 ^input-link I2)
+(I2 ^UAS V1)
+(I2 ^UGV V2)
+(I2 ^ground-station V3)
+(V1 ^tcrit-location D1)
+(D1 ^time [])
+(D1 ^temp [])
+(D1 ^lat [])
+(D1 ^lon [])
+(V1 ^deploy-request [])
+(V2 ^current-location D2)
+(D2 ^time [])
+(D2 ^lat [])
+(D2 ^lon [])
+(V2 ^deploy-command 0)
+(V3 ^ground-data D3)
+(D3 ^time [])
+(D3 ^ground-temp [])
+(D3 ^wind-speed [])
+
+#Output link data tree structure
+(S1 ^io I1)
+(I1 ^output-link I3)
+(I3 ^UAS V1)
+(I3 ^UGV V2)
+(I3 ^ground-station V3)
+(V1 ^deploy-command 0)
+(V2 ^deploy-command 0)
+(
+
+
+
+sp {temp-agent*propose*initialize-temp-agent
+	(state <s> ^superstate nil)
+	-(<s> ^name)
+-->
+(<s> ^operator <o> +)
+(<o> ^name initialize-temp-agent)}
+
+
+
+
+sp {temp-agent*apply*initialize-temp-agent
+	(state <s> ^operator.name initialize-temp-agent)
+-->
+

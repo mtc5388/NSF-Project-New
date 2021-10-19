@@ -154,7 +154,7 @@ for i = 1:height(T)-1
     dx1 = d1 * cos( theta );
     dy1 = d1 * sin( theta );
 
-    d2 = distance + offset;   % units [ft]
+    d2 = offset;   % units [ft]
     dx2 = d2 * cos( theta );
     dy2 = d2 * sin( theta );
 
@@ -168,8 +168,15 @@ for i = 1:height(T)-1
     
 end
 
+%% Interpolate 10 points per center row line
+center_points = []
+for r = 1:height(center_line);
+    points = gcwaypts(center_line(r,1),center_line(r,2),center_line(r,3),center_line(r,4), 10);
+    center_points = vertcat(center_points, points);
     
-%% Determine Row location of Fake GPS Point
+end 
+    
+%% Create Plot Using Local Euclidean Coordinate System
 
 wgs84 = wgs84Ellipsoid;
 alt = 1217; %[ft]
@@ -178,27 +185,44 @@ origin = [T(1,3),T(1,4), alt]; % Origin at Southern end of Row B
 
 [xEast,yNorth,zUp] = geodetic2enu(T(:,[1 3]), T(:,[2 4]), alt, origin(1), origin(2), origin(3), wgs84);
 [xCenter,yCenter,zUp] = geodetic2enu(center_line(1:18,[1 3]), center_line(1:18,[2 4]), alt, origin(1), origin(2), origin(3), wgs84);
+[xCenterPoints,yCenterPoints,zUp] = geodetic2enu(center_points(:,1), center_points(:,2), alt, origin(1), origin(2), origin(3), wgs84);
 
+% Creates points between each row to draw the center path lines when
+% plotting
+xCenterPath = [xCenter(:,1) xCenter(:,2)];
+yCenterPath = [yCenter(:,1) yCenter(:,2)];
 
 plot(xEast,yNorth)
 hold on;
 plot(xCenter,yCenter)
 hold on;
+plot(xCenterPath',yCenterPath');
+hold on;
+plot(xCenterPoints, yCenterPoints, 'o');
 
-xCenterPath = [xCenter(:,1) xCenter(:,2)];
-yCenterPath = [yCenter(:,1) yCenter(:,2)];
-    
 
-%{
+%% Determine Closest Center Row Coordinate to Fake Temp Value
+% Upload fake GPS location of a critical temperature region
 fake_lat = 40.708781;
 fake_lon = -77.953667;
 
-[val,idx] = min(abs(center_line
-%}
+% Find closest lat/lon within row center lines
+[min_dist_lat, lat_idx]  = min(abs(center_points(:,1) - fake_lat));
+closest_lat = center_points(lat_idx,1);
+[min_dist_lon, lon_idx]  = min(abs(center_points(:,2) - fake_lon));
+closest_lon = center_points(lon_idx,2);
 
-%% Determine Location of UAS in Block A1
+ 
+
+%% Determine Location of Crit Temp Regions in Block A1
 %{
     This section compares the received GPS location of the UAS from
     simulink to the A1 block structure coordinates to determine what row
     the vehicle is currently above.
 %}
+
+%% Cooling Rate Logic
+
+
+
+

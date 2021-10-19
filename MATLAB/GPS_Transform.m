@@ -12,108 +12,6 @@ coordinates.
 T = table2array(readtable('200305 rows.xlsx', 'Range', 'C33:F51'));
 
 
-%% GPS Data Structure Definition for Block A1
-    %{
-        GPS data is from "GPS_data.xlsx"
-    %}
-% Row B
-B.lat_N = 40.7089043;
-B.lon_N = -77.9541298;
-B.lat_S = 40.708362;
-B.lon_S = -77.9537402;
-% Row C
-C.lat_N = 40.7089112;
-C.lon_N = -77.9540956;
-C.lat_S = 40.7083846;
-C.lon_S = -77.9537174;
-% Row D
-D.lat_N = 40.7089249;
-D.lon_N = -77.9540587;
-D.lat_S = 40.7084049;
-D.lon_S = -77.9536815;
-% Row EE
-EE.lat_N = 40.7089653;
-EE.lon_N = -77.9539678;
-EE.lat_S = 40.7084377;
-EE.lon_S = -77.9535823;
-% Row F
-F.lat_N = 40.708976;
-F.lon_N = -77.9539357;
-F.lat_S = 40.708454;
-F.lon_S = -77.9535558;
-% Row FF
-FF.lat_N = 40.7089905;
-FF.lon_N = -77.9539051;
-FF.lat_S = 40.7084621;
-EE.lon_S = -77.9535253;
-% Row G
-G.lat_N = 40.7090014;
-G.lon_N = -77.953879;
-G.lat_S = 40.7084776;
-G.lon_S = -77.9534981;
-% Row GG
-GG.lat_N = 40.7090116;
-GG.lon_N = -77.9538565;
-GG.lat_S = 40.708489;
-GG.lon_S = -77.9534706;
-% Row H
-H.lat_N = 40.7090256;
-H.lon_N = -77.9538253;
-H.lat_S = 40.7085015;
-H.lon_S = -77.9534418;
-% Row HH
-HH.lat_N = 40.70904;
-HH.lon_N = -77.9537925;
-HH.lat_S = 40.708517;
-HH.lon_S = -77.9534106;
-% Row I			
-I.lat_N = 40.709051;
-I.lon_N = -77.953758;
-I.lat_S = 40.7085297;
-I.lon_S = -77.9533794;
-% Row II
-II.lat_N = 40.7090677;
-II.lon_N = -77.9537295;
-II.lat_S = 40.708546;
-II.lon_S = -77.9533462;
-% Row J
-J.lat_N = 40.7090858;
-J.lon_N = -77.9536886;
-J.lat_S = 40.708564;
-J.lon_S = -77.9533053;
-% Row K
-K.lat_N = 40.7091013;
-K.lon_N = -77.9536483;
-K.lat_S = 40.7085795;
-K.lon_S = -77.9532641;
-% Row L 
-L.lat_N = 40.7091127;			
-L.lon_N = -77.953601;
-L.lat_S = 40.708593;
-L.lon_S = -77.9532249;
-% Row LL
-LL.lat_N = 40.7091303;			
-LL.lon_N = -77.9535645;
-LL.lat_S = 40.7086059;
-LL.lon_S = -77.953187;
-% Row M
-M.lat_N = 40.7091303;			
-M.lon_N = -77.9535645;
-M.lat_S = 40.708623;
-M.lon_S = -77.9531518;
-% Row N
-N.lat_N = 40.7091646;			
-N.lon_N = -77.9534917;
-N.lat_S = 40.7086377;
-N.lon_S = -77.9531089;
-% Row O
-O.lat_N = 40.7091793;			
-O.lon_N = -77.9534498;
-O.lat_S = 40.7086497;
-O.lon_S = -77.9530693;
-
-
-
 %% Row Center Line
 
 center_line = zeros(18,4);
@@ -168,8 +66,15 @@ for i = 1:height(T)-1
     
 end
 
+%% Interpolate 10 points per center row line
+center_points = []
+for r = 1:height(center_line);
+    points = gcwaypts(center_line(r,1),center_line(r,2),center_line(r,3),center_line(r,4), 10);
+    center_points = vertcat(center_points, points);
     
-%% Determine Row location of Fake GPS Point
+end 
+    
+%% Create Plot Using Local Euclidean Coordinate System
 
 wgs84 = wgs84Ellipsoid;
 alt = 1217; %[ft]
@@ -178,6 +83,7 @@ origin = [T(1,3),T(1,4), alt]; % Origin at Southern end of Row B
 
 [xEast,yNorth,zUp] = geodetic2enu(T(:,[1 3]), T(:,[2 4]), alt, origin(1), origin(2), origin(3), wgs84);
 [xCenter,yCenter,zUp] = geodetic2enu(center_line(1:18,[1 3]), center_line(1:18,[2 4]), alt, origin(1), origin(2), origin(3), wgs84);
+[xCenterPoints,yCenterPoints,zUp] = geodetic2enu(center_points(:,1), center_points(:,2), alt, origin(1), origin(2), origin(3), wgs84);
 
 % Creates points between each row to draw the center path lines when
 % plotting
@@ -189,20 +95,24 @@ hold on;
 plot(xCenter,yCenter)
 hold on;
 plot(xCenterPath',yCenterPath');
+hold on;
+plot(xCenterPoints, yCenterPoints, 'o');
 
 
-    
-
-%{
+%% Determine Closest Center Row Coordinate to Fake Temp Value
+% Upload fake GPS location of a critical temperature region
 fake_lat = 40.708781;
 fake_lon = -77.953667;
 
-[val,idx] = min(abs(center_line
-%}
+% Find closest lat/lon within UGV center line path
+[min_dist_lat, lat_idx]  = min(abs(center_points(:,1) - fake_lat));
+closest_lat = center_points(lat_idx,1);
+[min_dist_lon, lon_idx]  = min(abs(center_points(:,2) - fake_lon));
+closest_lon = center_points(lon_idx,2);
 
-%% Determine Location of UAS in Block A1
-%{
-    This section compares the received GPS location of the UAS from
-    simulink to the A1 block structure coordinates to determine what row
-    the vehicle is currently above.
-%}
+
+%% Cooling Rate Logic
+
+
+
+
